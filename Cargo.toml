@@ -22,3 +22,7 @@ mktemp = "0.5"
 lto = "fat"
 opt-level = 3
 strip = true
+
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/v{ version }/{ name }-{version}-{ target }{ archive-suffix }"
+pkg-fmt = "bin"

@@ -1,0 +1,73 @@
+on:
+  release:
+    types: [published]
+
+name: release
+
+jobs:
+  publish-to-crates-io:
+    name: publish to crates.io
+    if: "!github.event.release.prerelease"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - id: toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Publish
+        uses: katyo/publish-crates@v1
+        with:
+          registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+  build-linux:
+    name: build github artifacts (linux)
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            primary: true
+          - target: x86_64-unknown-linux-musl
+            primary: false
+    if: "!github.event.release.prerelease"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - id: toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+          targets: ${{ matrix.target }}
+          components: rustfmt
+
+      - name: Cache Dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Set outputs
+        id: vars
+        run: |
+          echo "::set-output name=version::$(cargo pkgid | cut -d# -f2 | cut -d: -f2)"
+          echo "::set-output name=triple::$(rustc -vV | sed -n 's|host: ||p')"
+
+      - name: Build
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Make artifact directory
+        run: mkdir -p artifacts
+
+      - name: Copy binstall executable
+        if: ${{ matrix.primary }}
+        run: cp target/${{ matrix.target }}/cpdir artifacts/cpdir-${{ steps.vars.outputs.version }}-${{ steps.vars.outputs.triple }}
+
+      - name: Copy executable
+        run: cp target/${{ matrix.target }}/cpdir artifacts/cpdir-${{ steps.vars.outputs.version }}-${{ matrix.target }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/*
+          tag_name: "v${{ steps.vars.outputs.version }}"
