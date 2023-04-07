@@ -1,4 +1,4 @@
-use std::{fs::create_dir_all, path::PathBuf};
+use std::{fs::create_dir_all, path::PathBuf, process::exit};
 
 use clap::Parser;
 use walk_dir::WalkableDir;
@@ -26,12 +26,28 @@ struct Args {
     /// unless this argument is specified.
     #[arg(short = 'x', long, default_value_t = false)]
     execute: bool,
+
+    /// Whether or not the destination directory is allowed to be a subdirectory
+    /// of the source. This can have undesired behaviour, as directories within
+    /// the subdirectory then get copied deeper into the same subdirectory.
+    #[arg(long, default_value_t = false)]
+    allow_nesting: bool,
 }
 
 fn main() {
     let args = Args::parse();
 
-    println!("Walking {:?}", &args.source);
+    if !args.allow_nesting && args.dest.starts_with(&args.source) {
+        eprintln!("WARN: Your destination directory is a subdirectory of your source directory.");
+        eprintln!("WARN: This can have unintended side effects.");
+        eprintln!("WARN: If you would like to proceed, specify the --allow-nesting option.");
+
+        if args.execute {
+            exit(1);
+        }
+    }
+
+    println!("INFO: Walking {:?}", &args.source);
     let walkable = WalkableDir::new(&args.source, args.depth);
     walkable.for_each(|d| {
         let dest_dir = if let Ok(stripped_dir) = d.strip_prefix(&args.source) {
@@ -45,7 +61,7 @@ fn main() {
         };
 
         if args.execute {
-            println!("- Creating directory {dest_dir:?}");
+            println!("INFO: Creating directory {dest_dir:?}");
             create_dir_all(&dest_dir).unwrap_or_else(|e| {
                 eprintln!("ERROR: Could not create directory {dest_dir:?}: {e:?}");
             });

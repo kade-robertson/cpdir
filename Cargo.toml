@@ -13,7 +13,7 @@ keywords = ["copy", "directory", "cp"]
 categories = ["command-line-utilities"]
 
 [dependencies]
-clap = { version = "4.2.1", features = ["derive"] }
+clap = { version = "4.2.1", features = ["derive", "wrap_help"] }
 
 [dev-dependencies]
 mktemp = "0.5"
