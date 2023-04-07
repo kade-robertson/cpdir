@@ -1,0 +1,15 @@
+[package]
+name = "cpdir"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.2.1", features = ["derive"] }
+
+[dev-dependencies]
+mktemp = "0.5"
+
+[profile.release]
+lto = "fat"
+opt-level = 3
+strip = true
