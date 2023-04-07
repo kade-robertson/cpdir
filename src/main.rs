@@ -32,6 +32,11 @@ struct Args {
     /// the subdirectory then get copied deeper into the same subdirectory.
     #[arg(long, default_value_t = false)]
     allow_nesting: bool,
+
+    /// Whether or not a non-zero exit code should be used in the case that any
+    /// directory is not able to be moved.
+    #[arg(short = 'E', long, default_value_t = false)]
+    exit_code_failure: bool,
 }
 
 fn main() {
@@ -47,6 +52,8 @@ fn main() {
         }
     }
 
+    let mut did_fail = false;
+
     println!("INFO: Walking {:?}", &args.source);
     let walkable = WalkableDir::new(&args.source, args.depth);
     walkable.for_each(|d| {
@@ -57,6 +64,9 @@ fn main() {
                 "ERROR: Directory {d:?} is not a child of {source:?}. Skipping.",
                 source = args.source
             );
+            if args.exit_code_failure {
+                did_fail = true;
+            }
             return;
         };
 
@@ -64,9 +74,16 @@ fn main() {
             println!("INFO: Creating directory {dest_dir:?}");
             create_dir_all(&dest_dir).unwrap_or_else(|e| {
                 eprintln!("ERROR: Could not create directory {dest_dir:?}: {e:?}");
+                if args.exit_code_failure {
+                    did_fail = true;
+                }
             });
         } else {
             println!("DRY: Creating directory {d:?} -> {dest_dir:?}");
+        }
+
+        if did_fail {
+            exit(2);
         }
     });
 }
