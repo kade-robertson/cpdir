@@ -1,5 +1,8 @@
 # cpdir
 
+![test results](https://img.shields.io/github/actions/workflow/status/kade-robertson/cpdir/test.yml?label=test&style=flat-square) ![coverage](https://img.shields.io/codecov/c/github/kade-robertson/cpdir?style=flat-square)
+[![version](https://img.shields.io/crates/v/cpdir?style=flat-square)](https://crates.io/crates/cpdir) [![downloads](https://img.shields.io/crates/d/cpdir?style=flat-square)](https://crates.io/crates/cpdir)
+
 A utility for copying directory structures between two locations.
 
 ## Info
