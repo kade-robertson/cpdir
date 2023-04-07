@@ -61,10 +61,10 @@ jobs:
 
       - name: Copy binstall executable
         if: ${{ matrix.primary }}
-        run: cp target/${{ matrix.target }}/cpdir artifacts/cpdir-${{ steps.vars.outputs.version }}-${{ steps.vars.outputs.triple }}
+        run: cp target/${{ matrix.target }}/release/cpdir artifacts/cpdir-${{ steps.vars.outputs.version }}-${{ steps.vars.outputs.triple }}
 
       - name: Copy executable
-        run: cp target/${{ matrix.target }}/cpdir artifacts/cpdir-${{ steps.vars.outputs.version }}-${{ matrix.target }}
+        run: cp target/${{ matrix.target }}/release/cpdir artifacts/cpdir-${{ steps.vars.outputs.version }}-${{ matrix.target }}
 
       - name: Release
         uses: softprops/action-gh-release@v1
