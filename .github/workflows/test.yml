@@ -35,7 +35,7 @@ jobs:
         run: cargo fmt --all -- --check
 
       - name: Test
-        run: cargo tarpaulin --out Xml
+        run: cargo tarpaulin --skip-clean --out Xml
 
       - name: Codecov
         uses: codecov/codecov-action@v3
