@@ -2,6 +2,15 @@
 name = "cpdir"
 version = "0.1.0"
 edition = "2021"
+authors = ["Kade Robertson <kade@kaderobertson.dev>"]
+rust-version = "1.68.1"
+license = "MIT"
+description = "Command-line utility for copying directory structure between two locations."
+homepage = "https://github.com/kade-robertson/cpdir"
+repository = "https://github.com/kade-robertson/cpdir"
+readme = "README.md"
+keywords = ["copy", "directory", "cp"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 clap = { version = "4.2.1", features = ["derive"] }

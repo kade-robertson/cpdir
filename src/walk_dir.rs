@@ -17,10 +17,10 @@ fn push_subdirectories(path: &PathBuf, depth: u8, queue: &mut VecDeque<(PathBuf,
 }
 
 impl WalkableDir {
-    pub fn new(path: PathBuf, depth: u8) -> Self {
+    pub fn new(path: &PathBuf, depth: u8) -> Self {
         let mut dir_queue = VecDeque::new();
         if depth > 0 {
-            push_subdirectories(&path, 0, &mut dir_queue);
+            push_subdirectories(path, 0, &mut dir_queue);
         }
         WalkableDir {
             depth,
@@ -56,7 +56,7 @@ mod tests {
     #[test]
     fn empty_iterator_for_empty_dir() {
         let dir = Temp::new_dir().unwrap();
-        let walkable = WalkableDir::new(dir.to_path_buf(), 255);
+        let walkable = WalkableDir::new(&dir, 255);
 
         assert_eq!(walkable.count(), 0);
     }
@@ -65,11 +65,11 @@ mod tests {
     fn all_top_level_subdirs_for_dir() {
         let dir = Temp::new_dir().unwrap();
 
-        assert!(create_dir(dir.to_path_buf().join("fake1")).is_ok());
-        assert!(create_dir(dir.to_path_buf().join("fake2")).is_ok());
-        assert!(create_dir(dir.to_path_buf().join("fake3")).is_ok());
+        assert!(create_dir(dir.join("fake1")).is_ok());
+        assert!(create_dir(dir.join("fake2")).is_ok());
+        assert!(create_dir(dir.join("fake3")).is_ok());
 
-        let walkable = WalkableDir::new(dir.to_path_buf(), 255);
+        let walkable = WalkableDir::new(&dir, 255);
 
         assert_eq!(walkable.count(), 3);
     }
@@ -78,14 +78,14 @@ mod tests {
     fn skips_files_in_dir() {
         let dir = Temp::new_dir().unwrap();
 
-        assert!(Temp::new_file_in(dir.to_path_buf()).is_ok());
-        assert!(Temp::new_file_in(dir.to_path_buf()).is_ok());
-        assert!(Temp::new_file_in(dir.to_path_buf()).is_ok());
-        assert!(create_dir(dir.to_path_buf().join("fake1")).is_ok());
-        assert!(create_dir(dir.to_path_buf().join("fake2")).is_ok());
-        assert!(create_dir(dir.to_path_buf().join("fake3")).is_ok());
+        assert!(Temp::new_file_in(&dir).is_ok());
+        assert!(Temp::new_file_in(&dir).is_ok());
+        assert!(Temp::new_file_in(&dir).is_ok());
+        assert!(create_dir(dir.join("fake1")).is_ok());
+        assert!(create_dir(dir.join("fake2")).is_ok());
+        assert!(create_dir(dir.join("fake3")).is_ok());
 
-        let walkable = WalkableDir::new(dir.to_path_buf(), 255);
+        let walkable = WalkableDir::new(&dir, 255);
 
         assert_eq!(walkable.count(), 3);
     }
@@ -94,11 +94,11 @@ mod tests {
     fn empty_iterator_for_zero_depth_dir() {
         let dir = Temp::new_dir().unwrap();
 
-        assert!(create_dir(dir.to_path_buf().join("fake1")).is_ok());
-        assert!(create_dir(dir.to_path_buf().join("fake2")).is_ok());
-        assert!(create_dir(dir.to_path_buf().join("fake3")).is_ok());
+        assert!(create_dir(dir.join("fake1")).is_ok());
+        assert!(create_dir(dir.join("fake2")).is_ok());
+        assert!(create_dir(dir.join("fake3")).is_ok());
 
-        let walkable = WalkableDir::new(dir.to_path_buf(), 0);
+        let walkable = WalkableDir::new(&dir, 0);
 
         assert_eq!(walkable.count(), 0);
     }
@@ -107,14 +107,14 @@ mod tests {
     fn respects_depth_limit_for_dir() {
         let dir = Temp::new_dir().unwrap();
 
-        assert!(create_dir(dir.to_path_buf().join("fake1")).is_ok());
-        assert!(create_dir(dir.to_path_buf().join("fake2")).is_ok());
-        assert!(create_dir(dir.to_path_buf().join("fake3")).is_ok());
-        assert!(create_dir(dir.to_path_buf().join("fake1").join("fake1")).is_ok());
-        assert!(create_dir(dir.to_path_buf().join("fake1").join("fake2")).is_ok());
-        assert!(create_dir(dir.to_path_buf().join("fake1").join("fake3")).is_ok());
+        assert!(create_dir(dir.join("fake1")).is_ok());
+        assert!(create_dir(dir.join("fake2")).is_ok());
+        assert!(create_dir(dir.join("fake3")).is_ok());
+        assert!(create_dir(dir.join("fake1").join("fake1")).is_ok());
+        assert!(create_dir(dir.join("fake1").join("fake2")).is_ok());
+        assert!(create_dir(dir.join("fake1").join("fake3")).is_ok());
 
-        assert_eq!(WalkableDir::new(dir.to_path_buf(), 255).count(), 6);
-        assert_eq!(WalkableDir::new(dir.to_path_buf(), 1).count(), 3);
+        assert_eq!(WalkableDir::new(&dir, 255).count(), 6);
+        assert_eq!(WalkableDir::new(&dir, 1).count(), 3);
     }
 }
