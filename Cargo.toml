@@ -3,7 +3,7 @@ name = "cpdir"
 version = "0.1.0"
 edition = "2021"
 authors = ["Kade Robertson <kade@kaderobertson.dev>"]
-rust-version = "1.68.1"
+rust-version = "1.68.2"
 license = "MIT"
 description = "Command-line utility for copying directory structure between two locations."
 homepage = "https://github.com/kade-robertson/cpdir"
@@ -22,3 +22,7 @@ mktemp = "0.5"
 lto = "fat"
 opt-level = 3
 strip = true
+
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/v{ version }/{ name }-{version}-{ target }{ archive-suffix }"
+pkg-fmt = "bin"
